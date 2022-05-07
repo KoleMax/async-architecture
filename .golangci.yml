@@ -1,0 +1,50 @@
+## options for analysis running
+run:
+  deadline: 4m
+  issues-exit-code: 1
+  tests: false
+  skip-dirs:
+    - vendor
+    - bin
+
+# output configuration options
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+# settings of specific linters
+linters-settings:
+  govet:
+    check-shadowing: true
+  goconst:
+    min-len: 2
+    min-occurances: 2
+
+linters:
+  disable-all: true
+  enable:
+    - structcheck
+    - stylecheck
+    - errcheck
+    - deadcode
+    - typecheck
+    - ineffassign
+    - gosec
+    - goimports
+    - varcheck
+    - goconst
+#    - govet
+#    - megacheck
+
+issues:
+  exclude-use-default: false
+  exclude:
+    # - S1008  # gosimple
+    - S1002  # should omit comparison to bool constant, can be simplified to ...
+    - G107   # potential HTTP request made with variable url
+    - ST1020 # comment on exported function
+    - ST1021 # comment on exported type
+    - ST1000 # package comment should be of the form
+    - ST1003 # UserId should be UserID
+    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv|.*Rollback). is not checked
