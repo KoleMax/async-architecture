@@ -1,0 +1,192 @@
+definitions:
+  auth.AuthAccount:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      position:
+        type: string
+      public_id:
+        type: string
+    type: object
+  auth.AuthenticateResponse:
+    properties:
+      account:
+        $ref: '#/definitions/auth.AuthAccount'
+    type: object
+  tasks.CreateTaskRequest:
+    properties:
+      description:
+        type: string
+    type: object
+  tasks.CreateTaskResponse:
+    properties:
+      task:
+        $ref: '#/definitions/tasks.Task'
+    type: object
+  tasks.ListMyTasksResponse:
+    properties:
+      tasks:
+        items:
+          $ref: '#/definitions/tasks.Task'
+        type: array
+    type: object
+  tasks.ListTasksResponse:
+    properties:
+      tasks:
+        items:
+          $ref: '#/definitions/tasks.Task'
+        type: array
+    type: object
+  tasks.ShuffleTasksResponse:
+    type: object
+  tasks.Task:
+    properties:
+      assigne_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/auth/authenticate:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthenticateResponse'
+      security:
+      - BasicAuth: []
+      summary: Authenticate
+      tags:
+      - auth
+  /api/v1/tasks:
+    get:
+      consumes:
+      - application/json
+      description: List all tasks
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/tasks.ListTasksResponse'
+      security:
+      - OAuth2Password: []
+      summary: List all tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create new task
+      parameters:
+      - description: Add task
+        in: body
+        name: ecu
+        required: true
+        schema:
+          $ref: '#/definitions/tasks.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/tasks.CreateTaskResponse'
+      security:
+      - OAuth2Password: []
+      summary: Create new task
+      tags:
+      - tasks
+  /api/v1/tasks/{id}/complete:
+    post:
+      consumes:
+      - application/json
+      description: Complete firmware
+      parameters:
+      - description: Task Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ""
+      security:
+      - OAuth2Password: []
+      summary: Complete firmware
+      tags:
+      - tasks
+  /api/v1/tasks/my:
+    get:
+      consumes:
+      - application/json
+      description: List my tasks
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/tasks.ListMyTasksResponse'
+      security:
+      - OAuth2Password: []
+      summary: List my tasks
+      tags:
+      - tasks
+  /api/v1/tasks/shuffle:
+    post:
+      consumes:
+      - application/json
+      description: Shuffle tasks
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/tasks.ShuffleTasksResponse'
+      security:
+      - OAuth2Password: []
+      summary: Shuffle tasks
+      tags:
+      - tasks
+securityDefinitions:
+  OAuth2AccessCode:
+    authorizationUrl: http://localhost:3000/oauth/authorize
+    flow: accessCode
+    scopes:
+      basket-api: ""
+    tokenUrl: http://localhost:3000/oauth/token
+    type: oauth2
+  OAuth2Application:
+    flow: application
+    tokenUrl: http://localhost:3000/oauth2/token
+    type: oauth2
+  OAuth2Implicit:
+    authorizationUrl: http://localhost:3000/oauth/authorize
+    flow: implicit
+    scopes:
+      basket-api: ""
+    type: oauth2
+  OAuth2Password:
+    flow: password
+    tokenUrl: http://localhost:3000/oauth/token
+    type: oauth2
+swagger: "2.0"
