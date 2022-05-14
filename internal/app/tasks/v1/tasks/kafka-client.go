@@ -5,18 +5,16 @@ import (
 	"fmt"
 
 	"github.com/Shopify/sarama"
-	"github.com/gin-gonic/gin"
-
-	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/accounts"
-	tasks_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/tasks"
 )
 
-var brokers = []string{"localhost:9092"}
+var brokers = []string{"localhost:29092"}
 
 const (
 	accountTopic = "accounts-stream"
 	tasksTopic   = "tasks-stream"
 	tasksBeTopic = "tasks"
+
+	consumerClientId = "tasks"
 )
 
 func newProducer() (sarama.SyncProducer, error) {
@@ -40,49 +38,11 @@ func prepareMessage(topic, key string, message []byte) *sarama.ProducerMessage {
 	return msg
 }
 
-type Service struct {
-	tasksRepo    *tasks_repo.Repository
-	accountsRepo *accounts_repo.Repository
-	consumer     sarama.Consumer
-	producer     sarama.SyncProducer
-}
-
-func New(tasksRepo *tasks_repo.Repository, accountsRepo *accounts_repo.Repository) *Service {
+func newConsumer() (sarama.Consumer, error) {
 	conusemrConfig := sarama.NewConfig()
-	conusemrConfig.ClientID = "tasks"
+	conusemrConfig.ClientID = consumerClientId
 	conusemrConfig.Consumer.Return.Errors = true
-
-	// Create new consumer
-	consumer, err := sarama.NewConsumer(brokers, conusemrConfig)
-	if err != nil {
-		panic(err)
-	}
-
-	producer, err := newProducer()
-	if err != nil {
-		panic(err)
-	}
-
-	service := &Service{
-		tasksRepo:    tasksRepo,
-		accountsRepo: accountsRepo,
-		consumer:     consumer,
-		producer:     producer,
-	}
-
-	service.consumeAccounts()
-
-	return service
-}
-
-func (s *Service) SetupRoutes(router gin.IRouter) {
-	router.GET("/api/v1/tasks/", s.ListTasks)
-	router.GET("/api/v1/tasks/my", s.ListMyTasks)
-
-	router.POST("/api/v1/tasks", s.CreateTask)
-
-	router.POST("/api/v1/tasks/:id/complete", s.CompleteTask)
-	router.POST("/api/v1/tasks/shuffle", s.ShuffleTasks)
+	return sarama.NewConsumer(brokers, conusemrConfig)
 }
 
 func (s *Service) consumeAccounts() error {
@@ -113,13 +73,13 @@ func (s *Service) consumeAccounts() error {
 
 func (s *Service) handleKafkaMsg(msg *sarama.ConsumerMessage) error {
 	var baseMsg BaseKafkaMessage
-	if err := json.Unmarshal(msg.Value, baseMsg); err != nil {
+	if err := json.Unmarshal(msg.Value, &baseMsg); err != nil {
 		return err
 	}
 
 	if baseMsg.Type == accountCreatedMsgType {
 		var msg AccountCreatedMessage
-		if err := json.Unmarshal(baseMsg.Data, msg); err != nil {
+		if err := json.Unmarshal(baseMsg.Data, &msg); err != nil {
 			return err
 		}
 		_, err := s.accountsRepo.Create(msg.PublicId, msg.Fullname, msg.Position)

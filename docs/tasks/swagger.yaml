@@ -1,20 +1,4 @@
 definitions:
-  auth.AuthAccount:
-    properties:
-      email:
-        type: string
-      full_name:
-        type: string
-      position:
-        type: string
-      public_id:
-        type: string
-    type: object
-  auth.AuthenticateResponse:
-    properties:
-      account:
-        $ref: '#/definitions/auth.AuthAccount'
-    type: object
   tasks.CreateTaskRequest:
     properties:
       description:
@@ -55,23 +39,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/auth/authenticate:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/auth.AuthenticateResponse'
-      security:
-      - BasicAuth: []
-      summary: Authenticate
-      tags:
-      - auth
   /api/v1/tasks:
     get:
       consumes:
@@ -116,7 +83,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Complete firmware
+      description: Complete task
       parameters:
       - description: Task Id
         in: path
@@ -130,7 +97,7 @@ paths:
           description: ""
       security:
       - OAuth2Password: []
-      summary: Complete firmware
+      summary: Complete task
       tags:
       - tasks
   /api/v1/tasks/my:
@@ -167,26 +134,4 @@ paths:
       summary: Shuffle tasks
       tags:
       - tasks
-securityDefinitions:
-  OAuth2AccessCode:
-    authorizationUrl: http://localhost:3000/oauth/authorize
-    flow: accessCode
-    scopes:
-      basket-api: ""
-    tokenUrl: http://localhost:3000/oauth/token
-    type: oauth2
-  OAuth2Application:
-    flow: application
-    tokenUrl: http://localhost:3000/oauth2/token
-    type: oauth2
-  OAuth2Implicit:
-    authorizationUrl: http://localhost:3000/oauth/authorize
-    flow: implicit
-    scopes:
-      basket-api: ""
-    type: oauth2
-  OAuth2Password:
-    flow: password
-    tokenUrl: http://localhost:3000/oauth/token
-    type: oauth2
 swagger: "2.0"

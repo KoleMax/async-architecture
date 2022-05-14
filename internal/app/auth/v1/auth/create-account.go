@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	auth_accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/authaccounts"
+	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/auth/accounts"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,8 +27,8 @@ type CreateAccountResponse struct {
 // @Tags         accounts
 // @Accept       json
 // @Produce      json
-// @Param        ecu  body      CreateTaskRequest
-// @Success      201  {object}  CreateTaskResponse
+// @Param        account  body      CreateAccountRequest  true  "Add account"
+// @Success      201      {object}  CreateAccountResponse
 // @Router       /api/v1/auth/accounts [post]
 func (s *Service) CreateAccount(ctx *gin.Context) {
 
@@ -38,7 +38,7 @@ func (s *Service) CreateAccount(ctx *gin.Context) {
 		return
 	}
 
-	if err := s.authAccountsRepo.Create((*auth_accounts_repo.AuthAccountCreateRow)(&request)); err != nil {
+	if err := s.authAccountsRepo.Create((*accounts_repo.AccountCreateRow)(&request)); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

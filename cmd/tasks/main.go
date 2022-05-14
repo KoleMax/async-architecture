@@ -3,27 +3,16 @@ package main
 import (
 	"context"
 
-	docs "github.com/KoleMax/async-architecture/docs" // TODO: configure swagger
-	tasks_service "github.com/KoleMax/async-architecture/internal/app/api/v1/tasks"
+	docs "github.com/KoleMax/async-architecture/docs/tasks" // TODO: configure swagger
+	tasks_service "github.com/KoleMax/async-architecture/internal/app/tasks/v1/tasks"
 	"github.com/KoleMax/async-architecture/internal/pkg/config"
 	"github.com/KoleMax/async-architecture/internal/pkg/db"
-	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/accounts"
-	tasks_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/tasks"
+	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/tasks/accounts"
+	tasks_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/tasks/tasks"
 	"github.com/KoleMax/async-architecture/pkg/logging"
 	superapp "github.com/KoleMax/async-architecture/pkg/super-app"
 )
 
-// @securitydefinitions.oauth2.application OAuth2Application
-// @tokenUrl 		http://localhost:3000/oauth2/token
-// @securitydefinitions.oauth2.implicit OAuth2Implicit
-// @authorizationUrl http://localhost:3000/oauth/authorize
-// @scope.basket-api
-// @securitydefinitions.oauth2.password  OAuth2Password
-// @tokenUrl         http://localhost:3000/oauth/token
-// @securitydefinitions.oauth2.accessCode OAuth2AccessCode
-// @tokenUrl  http://localhost:3000/oauth/token
-// @authorizationUrl http://localhost:3000/oauth/authorize
-// @scope.basket-api
 func main() {
 	ctx := context.Background()
 

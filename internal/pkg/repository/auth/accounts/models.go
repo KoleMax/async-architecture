@@ -1,13 +1,13 @@
-package authaccounts
+package accounts
 
-type AuthAccountCreateRow struct {
+type AccountCreateRow struct {
 	Email    string `db:"email"`
 	Password string `db:"password"`
 	Fullname string `db:"full_name"`
 	Position string `db:"position"`
 }
 
-type AuthAccountGetRow struct {
+type AccountGetRow struct {
 	Id       int    `db:"id"`
 	Email    string `db:"email"`
 	Password string `db:"password"`

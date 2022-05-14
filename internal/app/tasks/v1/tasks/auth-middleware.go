@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const authUrl = "http://localhost:8081/api/v1/auth/authenticate"
+
 func Authorize(ctx *gin.Context, allowedRoles []string) *AuthAccount {
 	logging.Infof(ctx, "authorization")
 
@@ -20,7 +22,7 @@ func Authorize(ctx *gin.Context, allowedRoles []string) *AuthAccount {
 		return nil
 	}
 
-	reqURL, _ := url.Parse("http://localhost:8081/api/v1/auth/authenticate")
+	reqURL, _ := url.Parse(authUrl)
 	req := &http.Request{
 		Method: "POST",
 		URL:    reqURL,

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	docs "github.com/KoleMax/async-architecture/docs" // TODO: configure swagger
-	auth_service "github.com/KoleMax/async-architecture/internal/app/api/v1/auth"
+	docs "github.com/KoleMax/async-architecture/docs/auth" // TODO: configure swagger
+	auth_service "github.com/KoleMax/async-architecture/internal/app/auth/v1/auth"
 	"github.com/KoleMax/async-architecture/internal/pkg/config"
 	"github.com/KoleMax/async-architecture/internal/pkg/db"
 	auth_accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/authaccounts"

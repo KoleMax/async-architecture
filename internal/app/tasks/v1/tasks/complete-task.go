@@ -10,8 +10,8 @@ import (
 )
 
 // CompleteTask	 godoc
-// @Summary      Complete firmware
-// @Description  Complete firmware
+// @Summary      Complete task
+// @Description  Complete task
 // @Tags         tasks
 // @Accept       json
 // @Produce      json
