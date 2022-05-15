@@ -1,0 +1,98 @@
+definitions:
+  auth.AuthAccount:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      position:
+        type: string
+      public_id:
+        type: string
+    type: object
+  auth.AuthenticateResponse:
+    properties:
+      account:
+        $ref: '#/definitions/auth.AuthAccount'
+    type: object
+  auth.CreateAccountRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+      position:
+        type: string
+    type: object
+  auth.CreateAccountResponse:
+    properties:
+      account:
+        $ref: '#/definitions/auth.AuthAccount'
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/auth/accounts:
+    post:
+      consumes:
+      - application/json
+      description: Create new auth account
+      parameters:
+      - description: Add account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/auth.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.CreateAccountResponse'
+      summary: Create new auth account
+      tags:
+      - accounts
+  /api/v1/auth/authenticate:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthenticateResponse'
+      security:
+      - BasicAuth: []
+      summary: Authenticate
+      tags:
+      - auth
+securityDefinitions:
+  OAuth2AccessCode:
+    authorizationUrl: http://localhost:3000/oauth/authorize
+    flow: accessCode
+    scopes:
+      basket-api: ""
+    tokenUrl: http://localhost:3000/oauth/token
+    type: oauth2
+  OAuth2Application:
+    flow: application
+    tokenUrl: http://localhost:3000/oauth2/token
+    type: oauth2
+  OAuth2Implicit:
+    authorizationUrl: http://localhost:3000/oauth/authorize
+    flow: implicit
+    scopes:
+      basket-api: ""
+    type: oauth2
+  OAuth2Password:
+    flow: password
+    tokenUrl: http://localhost:3000/oauth/token
+    type: oauth2
+swagger: "2.0"

@@ -18,3 +18,5 @@ vendor/
 bin/
 *.csv
 .DS_Store
+
+.vscode/

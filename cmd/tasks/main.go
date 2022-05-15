@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 
-	docs "github.com/KoleMax/async-architecture/docs/auth" // TODO: configure swagger
-	auth_service "github.com/KoleMax/async-architecture/internal/app/auth/v1/auth"
+	docs "github.com/KoleMax/async-architecture/docs/tasks" // TODO: configure swagger
+	tasks_service "github.com/KoleMax/async-architecture/internal/app/tasks/v1/tasks"
 	"github.com/KoleMax/async-architecture/internal/pkg/config"
 	"github.com/KoleMax/async-architecture/internal/pkg/db"
-	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/auth/accounts"
+	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/tasks/accounts"
+	tasks_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/tasks/tasks"
 	"github.com/KoleMax/async-architecture/pkg/logging"
 	superapp "github.com/KoleMax/async-architecture/pkg/super-app"
 )
@@ -26,15 +27,12 @@ func main() {
 		logging.Panicf(ctx, "db.New: %v", err)
 	}
 
-	authAccountRepo := accounts_repo.New(dbConnection)
+	tasksRepo := tasks_repo.New(dbConnection)
+	accountsRepo := accounts_repo.New(dbConnection)
 
 	var services []superapp.Service
-	authService, err := auth_service.New(authAccountRepo)
-	if err != nil {
-		panic(err)
-	}
 	services = append(services,
-		authService,
+		tasks_service.New(tasksRepo, accountsRepo),
 	)
 
 	app, err := superapp.New(services)

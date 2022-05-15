@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package tasks;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/KoleMax/async-architecture/pkg/api/kafka-schemas/tasks";
+
+enum MessageType {
+    TaskAdded = 0;
+    TaskAssigned = 1;
+    TaskCompleted = 3;
+}
+
+message Base {
+    string version = 1;
+    string sender = 2;
+    MessageType type = 3;
+
+    google.protobuf.Timestamp sended = 4;
+
+    bytes data = 5;
+}
+
+message TaskAddedV1 {
+	string task_public_id = 1;
+	string assigne_public_id = 2;
+    string title = 3;
+	string description = 4;
+}
+
+message TaskAddedV2 {
+	string task_public_id = 1;
+	string assigne_public_id = 2;
+    string title = 3;
+    string jira_id = 4;
+	string description = 5;
+}
+
+message TaskAssignedV1 {
+    string task_public_id = 1;
+	string assigne_public_id = 2; 
+}
+
+message TaskCompletedV1 {
+    string task_public_id = 1;
+	string assigne_public_id = 2; 
+}

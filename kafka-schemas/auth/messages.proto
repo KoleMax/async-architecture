@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/KoleMax/async-architecture/pkg/api/kafka-schemas/auth";
+
+enum MessageType {
+    AccountCreated = 0;
+}
+
+message Base {
+    string version = 1;
+    string sender = 2;
+    MessageType type = 3;
+
+    google.protobuf.Timestamp sended = 4;
+
+    bytes data = 5;
+}
+
+message AccountCreatedV1 {
+	string public_id = 1;
+	string email = 2; 
+	string fullname = 3;
+	string position = 4;
+}
