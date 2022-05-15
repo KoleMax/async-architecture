@@ -1,16 +1,16 @@
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type CreateTaskRequest struct {
+	Title       string `json:"title"`
+	JiraId      string `json:"jira_id"`
 	Description string `json:"description"`
 }
 
@@ -53,37 +53,13 @@ func (s *Service) CreateTask(ctx *gin.Context) {
 
 	randomWorkerIndex := rand.Intn(len(workers))
 
-	task, err := s.tasksRepo.Create(workers[randomWorkerIndex].Id, request.Description)
+	task, err := s.tasksRepo.Create(workers[randomWorkerIndex].Id, request.Title, request.JiraId, request.Description)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	msg := TaskAddedMessage{
-		Id:              task.Id,
-		AssignePublicId: workers[randomWorkerIndex].PublicId,
-		Description:     task.Description,
-	}
-
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	baseMsg := BaseKafkaMessage{
-		Type: taskAddedType,
-		Data: msgBytes,
-	}
-	baseMsgBytes, err := json.Marshal(baseMsg)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	kafkaMsg := prepareMessage(tasksBeTopic, strconv.Itoa(task.Id), baseMsgBytes)
-	_, _, err = s.producer.SendMessage(kafkaMsg)
-	if err != nil {
+	if err := s.sendTaskAddedV1(task, authAccount.PublicId); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("kafka send error: %v", err)})
 		return
 	}

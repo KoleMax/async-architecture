@@ -7,6 +7,7 @@ create table tasks (
     id serial primary key,
     public_id text not null default gen_random_uuid(),
 
+    title text not null,
     description text not null,
     status text not null default 'active',
     version int not null default 1,

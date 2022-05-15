@@ -1,4 +1,103 @@
+definitions:
+  accounting.GetMyBalanceResponse:
+    properties:
+      balance:
+        type: integer
+    type: object
+  accounting.ListMyPaymentsResponse:
+    properties:
+      payments:
+        items:
+          $ref: '#/definitions/accounting.Payment'
+        type: array
+    type: object
+  accounting.ListMyTransactionsResponse:
+    properties:
+      transactions:
+        items:
+          $ref: '#/definitions/accounting.Transaction'
+        type: array
+    type: object
+  accounting.Payment:
+    properties:
+      amount:
+        type: integer
+      createdAt:
+        type: string
+      eventCreatedAt:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+  accounting.Transaction:
+    properties:
+      cost:
+        type: integer
+      event_created_at:
+        type: string
+      id:
+        type: integer
+      task_descriptioin:
+        type: string
+      task_id:
+        type: integer
+      type:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /api/v1/my-balance:
+    get:
+      consumes:
+      - application/json
+      description: Get my balance
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/accounting.GetMyBalanceResponse'
+      security:
+      - OAuth2Password: []
+      summary: Get my balance
+      tags:
+      - accounting
+  /api/v1/payments/my:
+    get:
+      consumes:
+      - application/json
+      description: List my payments
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/accounting.ListMyPaymentsResponse'
+      security:
+      - OAuth2Password: []
+      summary: List my payments
+      tags:
+      - payments
+  /api/v1/transactions/my:
+    get:
+      consumes:
+      - application/json
+      description: List my transactions
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/accounting.ListMyTransactionsResponse'
+      security:
+      - OAuth2Password: []
+      summary: List my transactions
+      tags:
+      - transactions
 swagger: "2.0"

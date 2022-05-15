@@ -1,11 +1,9 @@
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -44,6 +42,8 @@ func (s *Service) ShuffleTasks(ctx *gin.Context) {
 		return
 	}
 
+	tasksWithAssignePublicId := make([]taskToAssignePublicId, 0, len(tasks))
+
 	for _, task := range tasks {
 		randomWorkerIndex := rand.Intn(len(workers))
 
@@ -52,34 +52,15 @@ func (s *Service) ShuffleTasks(ctx *gin.Context) {
 			return
 		}
 
-		msg := TaskAssignedMessage{
-			Id:              task.Id,
+		tasksWithAssignePublicId = append(tasksWithAssignePublicId, taskToAssignePublicId{
+			Task:            &task,
 			AssignePublicId: workers[randomWorkerIndex].PublicId,
-		}
+		})
+	}
 
-		msgBytes, err := json.Marshal(msg)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-
-		baseMsg := BaseKafkaMessage{
-			Type: taskAssignedType,
-			Data: msgBytes,
-		}
-		baseMsgBytes, err := json.Marshal(baseMsg)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-
-		kafkaMsg := prepareMessage(tasksBeTopic, strconv.Itoa(task.Id), baseMsgBytes)
-		_, _, err = s.producer.SendMessage(kafkaMsg)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("kafka send error: %v", err)})
-			return
-		}
-
+	if err := s.sendMultipleTaskAssignedV1(tasksWithAssignePublicId); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("kafka sender error: %v", err.Error())})
+		return
 	}
 
 	ctx.AbortWithStatusJSON(http.StatusCreated, nil)

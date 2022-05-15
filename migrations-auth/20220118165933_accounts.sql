@@ -3,7 +3,7 @@
 
 create extension pgcrypto;
 
-create table auth_accounts (
+create table accounts (
     id serial primary key,
 
     email text not null unique,
@@ -15,13 +15,13 @@ create table auth_accounts (
     position text not null
 );
 
-insert into auth_accounts (email, password, full_name, position) values ('p1@pmail.po', 'pass', 'popug1', 'admin');
-insert into auth_accounts (email, password, full_name, position) values ('p2@pmail.po', 'pass', 'popug2', 'manager');
-insert into auth_accounts (email, password, full_name, position) values ('p3@pmail.po', 'pass', 'popug3', 'accountant');
-insert into auth_accounts (email, password, full_name, position) values ('p4@pmail.po', 'pass', 'popug4', 'worker');
-insert into auth_accounts (email, password, full_name, position) values ('p5@pmail.po', 'pass', 'popug5', 'worker');
+insert into accounts (email, password, full_name, position) values ('p1@pmail.po', 'pass', 'popug1', 'admin');
+insert into accounts (email, password, full_name, position) values ('p2@pmail.po', 'pass', 'popug2', 'manager');
+insert into accounts (email, password, full_name, position) values ('p3@pmail.po', 'pass', 'popug3', 'accountant');
+insert into accounts (email, password, full_name, position) values ('p4@pmail.po', 'pass', 'popug4', 'worker');
+insert into accounts (email, password, full_name, position) values ('p5@pmail.po', 'pass', 'popug5', 'worker');
 
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
-drop table auth_accounts;
+drop table accounts;

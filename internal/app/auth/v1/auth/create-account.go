@@ -1,10 +1,8 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/auth/accounts"
 	"github.com/gin-gonic/gin"
@@ -53,32 +51,7 @@ func (s *Service) CreateAccount(ctx *gin.Context) {
 		return
 	}
 
-	msg := AccountCreatedMessage{
-		PublicId: account.PublicId,
-		Email:    account.Email,
-		Fullname: account.Fullname,
-		Position: account.Position,
-	}
-
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	baseMsg := BaseKafkaMessage{
-		Type: accountCreatedMsgType,
-		Data: msgBytes,
-	}
-	baseMsgBytes, err := json.Marshal(baseMsg)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	kafkaMsg := prepareMessage(accountTopic, strconv.Itoa(account.Id), baseMsgBytes)
-	_, _, err = s.kafkaProducer.SendMessage(kafkaMsg)
-	if err != nil {
+	if err := s.sendAccountCreatedV1(*account); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("kafka send error: %v", err)})
 		return
 	}

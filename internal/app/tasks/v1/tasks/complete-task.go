@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -36,30 +35,13 @@ func (s *Service) CompleteTask(ctx *gin.Context) {
 		return
 	}
 
-	msg := TaskCompletedMessage{
-		Id:              id,
-		AssignePublicId: authAccount.PublicId,
-	}
-
-	msgBytes, err := json.Marshal(msg)
+	task, err := s.tasksRepo.GetById(id)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	baseMsg := BaseKafkaMessage{
-		Type: taskCompletedType,
-		Data: msgBytes,
-	}
-	baseMsgBytes, err := json.Marshal(baseMsg)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	kafkaMsg := prepareMessage(tasksBeTopic, strconv.Itoa(id), baseMsgBytes)
-	_, _, err = s.producer.SendMessage(kafkaMsg)
-	if err != nil {
+	if err := s.sendTaskCompletedV1(task, authAccount.PublicId); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("kafka send error: %v", err)})
 		return
 	}

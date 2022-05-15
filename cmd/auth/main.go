@@ -7,7 +7,7 @@ import (
 	auth_service "github.com/KoleMax/async-architecture/internal/app/auth/v1/auth"
 	"github.com/KoleMax/async-architecture/internal/pkg/config"
 	"github.com/KoleMax/async-architecture/internal/pkg/db"
-	auth_accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/authaccounts"
+	accounts_repo "github.com/KoleMax/async-architecture/internal/pkg/repository/auth/accounts"
 	"github.com/KoleMax/async-architecture/pkg/logging"
 	superapp "github.com/KoleMax/async-architecture/pkg/super-app"
 )
@@ -26,7 +26,7 @@ func main() {
 		logging.Panicf(ctx, "db.New: %v", err)
 	}
 
-	authAccountRepo := auth_accounts_repo.New(dbConnection)
+	authAccountRepo := accounts_repo.New(dbConnection)
 
 	var services []superapp.Service
 	authService, err := auth_service.New(authAccountRepo)

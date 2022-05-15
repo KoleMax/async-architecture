@@ -11,6 +11,13 @@ ACCOUNTING_MIGRATIONS_DIR := $(CURDIR)/migrations-accounting
 AUTH_MIGRATIONS_DIR := $(CURDIR)/migrations-auth
 TASKS_MIGRATIONS_DIR := $(CURDIR)/migrations-tasks
 
+PROTOC_TAG := 3.18.1
+PROTOC_BIN_NAME := protoc
+PROTOC_BIN := $(LOCAL_BIN)/$(PROTOC_BIN_NAME)
+
+PROTOC_GEN_GO_BIN := $(LOCAL_BIN)/protoc-gen-go
+PROTOC_GEN_GO_TAG := 1.27.1
+
 ENVSUBST_BIN := $(LOCAL_BIN)/envsubst
 ENVSUBST_TAG := 1.2.0
 
@@ -20,7 +27,27 @@ GOIMPORTS_TAG := 0.1.8
 SWAG_BIN := $(LOCAL_BIN)/swag
 SWAG_TAG := 1.7.8
 
-install-bin-deps: .install-lint .install-goose .install-envsubst .install-goimports .install-swag
+install-bin-deps: .install-protoc .install-protoc-gen-go .install-lint .install-goose .install-envsubst .install-goimports .install-swag
+
+.install-protoc:
+	$(info Installing protoc v$(PROTOC_GEN_GO_TAG))
+	PROTOC_ZIP=protoc-$(PROTOC_TAG)-osx-x86_64.zip && \
+	tmp_dir=$$(mktemp -d) && \
+	cd $$tmp_dir && \
+	curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_TAG)/$$PROTOC_ZIP && \
+	unzip -o $$PROTOC_ZIP -d $(CURDIR) bin/$(PROTOC_BIN_NAME) && \
+	unzip -o $$PROTOC_ZIP -d $(LOCAL_BIN) 'include/*' && \
+	rm -rf $$tmp_dir
+
+.install-protoc-gen-go:
+	$(info Installing protoc-gen-go v$(PROTOC_GEN_GO_TAG))
+	tmp_dir=$$(mktemp -d) && \
+	cd $$tmp_dir && \
+	go mod init tmp && \
+	go get -d google.golang.org/protobuf/cmd/protoc-gen-go@v$(PROTOC_GEN_GO_TAG) && \
+	go build -o $(PROTOC_GEN_GO_BIN) google.golang.org/protobuf/cmd/protoc-gen-go && \
+	rm -rf $$tmp_dir
+
 
 .install-lint:
 	$(info Installing golangci-lint v$(GOLANGCI_TAG))
@@ -96,6 +123,8 @@ generate:
 	$(SWAG_BIN) init -g ./service.go --dir ./internal/app/tasks/v1/tasks --output ./docs/tasks
 	$(SWAG_BIN) init -g ./service.go --dir ./internal/app/accounting/v1/accounting --output ./docs/accounting
 
+	$(PROTOC_BIN) --go_out=./pkg --go_opt=paths=source_relative --proto_path=. kafka-schemas/auth/messages.proto kafka-schemas/tasks/messages.proto
+
 ######################################## GEN ########################################
 
 ######################################## LINTERS ########################################
@@ -111,9 +140,15 @@ lint-fix:
 
 ######################################## LINTERS ########################################
 
-build:
+build: build-tasks build-auth build-accounting
+
+build-accounting:
 	$(info Building executables)
-	CGO_ENABLED=1 go build -o $(LOCAL_BIN) ./cmd/api
+	CGO_ENABLED=1 go build -o $(LOCAL_BIN) ./cmd/accounting
+
+build-tasks:
+	$(info Building executables)
+	CGO_ENABLED=1 go build -o $(LOCAL_BIN) ./cmd/tasks
 
 build-auth:
 	$(info Building executables)
